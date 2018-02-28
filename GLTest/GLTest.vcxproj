@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
-    <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\ShaderProgram.cpp" />
     <ClCompile Include="src\Texture2D.cpp" />
@@ -29,15 +28,18 @@
   <ItemGroup>
     <None Include="shaders\forward.frag" />
     <None Include="shaders\forward.vert" />
+    <None Include="shaders\lightSource.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\DirectionalLight.h" />
     <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\ShaderProgram.h" />
     <ClInclude Include="src\Texture2D.h" />
+    <ClInclude Include="src\Transform.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{642CBFB6-B824-4871-973E-249AEE1CF00A}</ProjectGuid>

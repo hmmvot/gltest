@@ -23,9 +23,6 @@
     <ClCompile Include="src\Texture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -35,6 +32,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\forward.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\lightSource.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -58,6 +58,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DirectionalLight.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Transform.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

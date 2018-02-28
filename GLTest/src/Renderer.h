@@ -8,5 +8,5 @@ class Camera;
 class Renderer
 {
 public:
-	void Render(const Camera& camera, const std::vector<std::shared_ptr<Object>>& objects);
+	void Render(const Camera& camera, const std::vector<ObjectRef>& objects);
 };

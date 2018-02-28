@@ -1,7 +1,7 @@
 ﻿#include "Renderer.h"
 #include "Camera.h"
 
-void Renderer::Render(const Camera &camera, const std::vector<std::shared_ptr<Object>> &objects)
+void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &objects)
 {
 	glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -9,10 +9,20 @@ void Renderer::Render(const Camera &camera, const std::vector<std::shared_ptr<Ob
 	const auto projection = camera.GetProjectionMatrix();
 	const auto view = camera.GetViewMatrix();
 
+	ObjectRef dirLightObject = nullptr;
 	for (const auto &obj : objects)
 	{
-		auto material = obj->GetMaterial();
-		auto mesh = obj->GetMesh();
+		if (obj->directionalLight)
+		{
+			dirLightObject = obj;
+			break;
+		}
+	}
+
+	for (const auto &obj : objects)
+	{
+		auto material = obj->material;
+		auto mesh = obj->mesh;
 
 		if (!mesh || !material)
 		{
@@ -23,23 +33,30 @@ void Renderer::Render(const Camera &camera, const std::vector<std::shared_ptr<Ob
 
 		shader->Use();
 
+		if (dirLightObject)
+		{
+			shader->SetFloat("dirLight.ambient", dirLightObject->directionalLight->ambient);
+			shader->SetVec3("dirLight.color", dirLightObject->directionalLight->color);
+			shader->SetVec3("dirLight.pos", dirLightObject->transform.GetPosition());
+		}
+
 		shader->SetMat4("projection", projection);
 		shader->SetMat4("view", view);
-		shader->SetMat4("model", obj->GetTransform());
+		shader->SetMat4("model", obj->transform.GetMatrix());
 		shader->SetVec4("color", material->color);
 
 		shader->SetFloat("textures[0].intensity", material->mainTex.intensity);
 		shader->SetVec2("textures[0].scale", material->mainTex.scale);
 		shader->SetVec2("textures[0].shift", material->mainTex.GetShift());
-		
+
 		shader->SetFloat("textures[1].intensity", material->tex1.intensity);
 		shader->SetVec2("textures[1].scale", material->tex1.scale);
 		shader->SetVec2("textures[1].shift", material->tex1.GetShift());
-		
+
 		shader->SetFloat("textures[2].intensity", material->tex2.intensity);
 		shader->SetVec2("textures[2].scale", material->tex2.scale);
 		shader->SetVec2("textures[2].shift", material->tex2.GetShift());
-		
+
 		shader->SetFloat("textures[3].intensity", material->tex3.intensity);
 		shader->SetVec2("textures[3].scale", material->tex3.scale);
 		shader->SetVec2("textures[3].shift", material->tex3.GetShift());

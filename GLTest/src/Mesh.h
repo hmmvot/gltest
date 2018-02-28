@@ -14,6 +14,7 @@ struct Vertex
 	glm::vec2 uv1;
 	glm::vec2 uv2;
 	glm::vec2 uv3;
+	glm::vec3 normal;
 };
 
 struct Triangle
@@ -93,6 +94,20 @@ public:
 		for (auto it = begin; it != end; ++it, ++index)
 		{
 			m_Vertices[index].uv3 = *it;
+		}
+		m_Dirty = true;
+	}
+
+	void SetNormals(const std::initializer_list<glm::vec3>& normals);
+
+	template <class Iterator>
+	void SetNormals(Iterator begin, Iterator end)
+	{
+		Resize(end - begin);
+		size_t index = 0;
+		for (auto it = begin; it != end; ++it, ++index)
+		{
+			m_Vertices[index].normal = *it;
 		}
 		m_Dirty = true;
 	}

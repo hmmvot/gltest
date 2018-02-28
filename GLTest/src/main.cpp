@@ -11,7 +11,6 @@
 #include "Texture2D.h"
 #include "Material.h"
 #include "Object.h"
-#include <glm/gtc/matrix_transform.hpp>
 #include "Camera.h"
 #include "Renderer.h"
 
@@ -65,36 +64,49 @@ int main()
 	glfwSetMouseButtonCallback(window, MouseButtonCallback);
 	glfwSetCursorPosCallback(window, MouseMoveCallback);
 
-	const auto shaderProgram = std::make_shared<ShaderProgram>("shaders/forward.vert", "shaders/forward.frag");
+	const auto standardShader = std::make_shared<ShaderProgram>("shaders/forward.vert", "shaders/forward.frag");
+	const auto lightSourceShader = std::make_shared<ShaderProgram>("shaders/forward.vert", "shaders/lightSource.frag");
+
 	const auto texture0 = std::make_shared<Texture2D>("res/wall.jpg");
 	const auto texture1 = std::make_shared<Texture2D>("res/wall1.jpg");
 	const auto texture2 = std::make_shared<Texture2D>("res/lava.jpg");
 
-	auto material0 = std::make_shared<Material>(shaderProgram);
+	auto material0 = std::make_shared<Material>(standardShader);
 	material0->mainTex.texture = texture1;
 
-	auto material1 = std::make_shared<Material>(shaderProgram);
+	auto material1 = std::make_shared<Material>(standardShader);
 	material1->mainTex.texture = texture0;
 	material1->tex1.texture = texture2;
 	material1->mainTex.intensity = 0.5f;
 	material1->tex1.intensity = 0.5f;
-	material1->mainTex.scale = {0.33f, 0.33f};
+	material1->mainTex.scale = {0.1f, 0.1f};
+	material1->tex1.scale = {0.1f, 0.1f};
 
-	auto cube = std::make_shared<Object>();
-	cube->SetMaterial(material0);
-	cube->SetMesh(Mesh::CreateCube());
-	cube->SetPosition({0, 1, 0});
-	cube->SetRotation({0, 0, 0});
-	cube->SetScale({0.5f, 0.5f, 0.5f});
+	auto lightSourceMaterial = std::make_shared<Material>(lightSourceShader);
 
-	auto plane = std::make_shared<Object>();
-	plane->SetMaterial(material1);
-	plane->SetMesh(Mesh::CreatePlane());
-	plane->SetPosition({0, 0, 0});
-	plane->SetScale({3, 1, 3});
-	plane->SetRotation({90, 0, 0});
+	auto cube = Object::Create();
+	cube->material = material0;
+	cube->mesh = Mesh::CreateCube();
+	cube->transform.SetPosition({0, 1, 0});
+	cube->transform.SetRotation({0, 0, 0});
+	cube->transform.SetScale({0.5f, 0.5f, 0.5f});
 
-	std::vector<std::shared_ptr<Object>> objects = {plane, cube};
+	auto plane = Object::Create();
+	plane->material = material1;
+	plane->mesh = Mesh::CreatePlane();
+	plane->transform.SetPosition({0, 0, 0});
+	plane->transform.SetScale({20, 20, 1});
+	plane->transform.SetRotation({90, 0, 0});
+
+	auto sun = Object::Create();
+	sun->material = lightSourceMaterial;
+	sun->mesh = Mesh::CreateCube();
+	sun->directionalLight = std::make_shared<DirectionalLight>();
+	sun->directionalLight->color = {1.0f, 0.5f, 0};
+	sun->transform.SetPosition({0, 2, -1});
+	sun->transform.SetScale({0.1f, 0.1f, 0.1f});
+
+	std::vector<ObjectRef> objects = {plane, cube, sun};
 
 	MyCamera.SetProjection(45.0f, ScreenWidth / ScreenHeight, 0.1f, 100.0f);
 	MyCamera.SetPosition({0, 1.5f, 3});
@@ -110,9 +122,9 @@ int main()
 		prev = now;
 
 		{
-			auto r = cube->GetRotation();
+			auto r = cube->transform.GetRotation();
 			r.y += 30 * dt;
-			cube->SetRotation(r);
+			cube->transform.SetRotation(r);
 
 			auto shift = material1->tex1.GetShift();
 			shift.x += 0.25f * dt;

@@ -14,34 +14,53 @@ Mesh::~Mesh()
 	glDeleteBuffers(1, &m_EBO);
 }
 
-void Mesh::SetVertices(const std::initializer_list<glm::vec3>& vertices)
+void Mesh::SetVertices(const std::initializer_list<glm::vec3> &vertices)
 {
 	SetVertices(std::begin(vertices), std::end(vertices));
 }
 
-void Mesh::SetUv0(const std::initializer_list<glm::vec2>& uvs)
+void Mesh::SetUv0(const std::initializer_list<glm::vec2> &uvs)
 {
 	SetUv0(std::begin(uvs), std::end(uvs));
 }
 
-void Mesh::SetUv1(const std::initializer_list<glm::vec2>& uvs)
+void Mesh::SetUv1(const std::initializer_list<glm::vec2> &uvs)
 {
 	SetUv1(std::begin(uvs), std::end(uvs));
 }
 
-void Mesh::SetUv2(const std::initializer_list<glm::vec2>& uvs)
+void Mesh::SetUv2(const std::initializer_list<glm::vec2> &uvs)
 {
 	SetUv2(std::begin(uvs), std::end(uvs));
 }
 
-void Mesh::SetUv3(const std::initializer_list<glm::vec2>& uvs)
+void Mesh::SetUv3(const std::initializer_list<glm::vec2> &uvs)
 {
 	SetUv3(std::begin(uvs), std::end(uvs));
 }
 
-void Mesh::SetTriangles(const std::initializer_list<Triangle>& triangles)
+void Mesh::SetNormals(const std::initializer_list<glm::vec3> &normals)
+{
+	SetNormals(std::begin(normals), std::end(normals));
+}
+
+void Mesh::SetTriangles(const std::initializer_list<Triangle> &triangles)
 {
 	SetTriangles(std::begin(triangles), std::end(triangles));
+}
+
+template <class T>
+static void SetupAttributeArray(
+	GLuint index,
+	GLint size,
+	GLenum type,
+	GLboolean normalized,
+	size_t &shift)
+{
+	glVertexAttribPointer(index, size, type, normalized, sizeof(Vertex), reinterpret_cast<GLvoid*>(shift));
+	glEnableVertexAttribArray(index);
+
+	shift += sizeof(T);
 }
 
 void Mesh::Update()
@@ -59,24 +78,14 @@ void Mesh::Update()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Triangles.size() * sizeof(Triangle), m_Triangles.data(), GL_DYNAMIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-	                      reinterpret_cast<GLvoid*>(sizeof(glm::vec3) + sizeof(glm::vec4)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-	                      reinterpret_cast<GLvoid*>(sizeof(glm::vec3) + sizeof(glm::vec4) + sizeof(glm::vec2)));
-	glEnableVertexAttribArray(2);
-
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-	                      reinterpret_cast<GLvoid*>(sizeof(glm::vec3) + sizeof(glm::vec4) + sizeof(glm::vec2) + sizeof(glm::vec2)));
-	glEnableVertexAttribArray(3);
-
-	glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-	                      reinterpret_cast<GLvoid*>(sizeof(glm::vec3) + sizeof(glm::vec4) + sizeof(glm::vec2) + sizeof(glm::vec2) + sizeof(glm::vec2)));
-	glEnableVertexAttribArray(4);
+	size_t shift = 0;
+	SetupAttributeArray<glm::vec3>(0, 3, GL_FLOAT, GL_FALSE, shift);
+	SetupAttributeArray<glm::vec4>(1, 4, GL_FLOAT, GL_FALSE, shift);
+	SetupAttributeArray<glm::vec2>(2, 2, GL_FLOAT, GL_FALSE, shift);
+	SetupAttributeArray<glm::vec2>(3, 2, GL_FLOAT, GL_FALSE, shift);
+	SetupAttributeArray<glm::vec2>(4, 2, GL_FLOAT, GL_FALSE, shift);
+	SetupAttributeArray<glm::vec2>(5, 2, GL_FLOAT, GL_FALSE, shift);
+	SetupAttributeArray<glm::vec3>(6, 3, GL_FLOAT, GL_FALSE, shift);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -122,8 +131,8 @@ std::shared_ptr<Mesh> Mesh::CreateCube()
 		{0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, -0.5f}, {-0.5f, 0.5f, -0.5f}, {-0.5f, 0.5f, 0.5f}, // top
 		{0.5f, -0.5f, 0.5f}, {0.5f, -0.5f, -0.5f}, {-0.5f, -0.5f, -0.5f}, {-0.5f, -0.5f, 0.5f}, // down
 
-		{-0.5f, 0.5f, 0.5f}, {-0.5f, -0.5f, 0.5f}, {-0.5f, -0.5f, -0.5f}, {-0.5f, 0.5f, -0.5f}, // left
 		{0.5f, 0.5f, 0.5f}, {0.5f, -0.5f, 0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, // right
+		{-0.5f, 0.5f, 0.5f}, {-0.5f, -0.5f, 0.5f}, {-0.5f, -0.5f, -0.5f}, {-0.5f, 0.5f, -0.5f}, // left
 	});
 
 	std::initializer_list<glm::vec2> uvs = {
@@ -145,6 +154,16 @@ std::shared_ptr<Mesh> Mesh::CreateCube()
 		{12, 13, 15}, {13, 14, 15},
 		{16, 17, 19}, {17, 18, 19},
 		{20, 21, 23}, {21, 22, 23},
+	});
+	mesh->SetNormals({
+		{0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1}, // front
+		{0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, // back
+
+		{0, 1, 0}, {0, 1, 0}, {0, 1, 0}, {0, 1, 0}, // top
+		{0, -1, 0}, {0, -1, 0}, {0, -1, 0}, {0, -1, 0}, // down
+
+		{1, 0, 0}, {1, 0, 0}, {1, 0, 0}, {1, 0, 0}, // right
+		{-1, 0, 0}, {-1, 0, 0}, {-1, 0, 0}, {-1, 0, 0}, // left
 	});
 	return mesh;
 }
@@ -169,6 +188,9 @@ std::shared_ptr<Mesh> Mesh::CreatePlane()
 	});
 	mesh->SetTriangles({
 		{0, 1, 3}, {1, 2, 3},
+	});
+	mesh->SetNormals({
+		{0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1},
 	});
 	return mesh;
 }

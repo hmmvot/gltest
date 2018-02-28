@@ -81,8 +81,6 @@ public:
 		return m_ShaderProgram;
 	}
 
-	void Use() const;
-
 private:
 	const std::shared_ptr<ShaderProgram> m_ShaderProgram;
 };
