@@ -3,7 +3,7 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Transform.h"
-#include "DirectionalLight.h"
+#include "Light.h"
 
 class Object;
 using ObjectRef = std::shared_ptr<Object>;
@@ -14,7 +14,7 @@ public:
 	std::shared_ptr<Mesh> mesh;
 	std::shared_ptr<Material> material;
 	Transform transform;
-	std::shared_ptr<DirectionalLight> directionalLight;
+	std::shared_ptr<Light> light;
 
 	static ObjectRef Create()
 	{

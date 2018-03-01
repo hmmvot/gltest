@@ -8,12 +8,26 @@ struct TextureSettings
 	float intensity;
 };
 
-struct DirLight
+struct Light
 {
-	float ambient;
-	vec3 color;
 	vec3 pos;
+
+	float ambientStrength;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+	
+	float constant;
+    float linear;
+    float quadratic;
 };
+
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shiness;
+}; 
 
 const int MAX_TEX_COUNT = 4;
 
@@ -27,12 +41,13 @@ in vec3 fPos;
 
 out vec4 result;
 
-uniform vec4 color;
 uniform TextureSettings textures[MAX_TEX_COUNT];
-uniform DirLight dirLight;
-uniform vec3 cameraPos;
+uniform Light light;
+uniform Material material;
+uniform vec3 cameraPos;		
 
-float specularStrength = 0.5;
+uniform int DirectionalLight;
+uniform int PointLight;
 
 vec4 TexColor(int i, vec2 uv)
 {
@@ -46,17 +61,37 @@ void main()
 	vec4 t2 = TexColor(2, uv2);
 	vec4 t3 = TexColor(3, uv3);
 	
-	vec3 ambient = dirLight.ambient * dirLight.color;
+	result = (t0 + t1 + t2 + t3) * vColor;
 
-	vec3 norm = normalize(normal);
-	vec3 lightDir = normalize(dirLight.pos - fPos); 
-	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = diff * dirLight.color;
+	vec3 ambient = vec3(1.0);
+	vec3 diffuse = vec3(1.0);
+	vec3 specular = vec3(1.0);
 
-	vec3 viewDir = normalize(cameraPos - fPos);
-	vec3 reflectDir = reflect(-lightDir, norm); 
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-	vec3 specular = specularStrength * spec * dirLight.color;  
+	if (PointLight > 0 || DirectionalLight > 0)
+	{
+		ambient = material.ambient * light.ambientStrength * light.ambient;
 
-	result = (t0 + t1 + t2 + t3) * vec4(ambient + diffuse, 1.0f) * color * vColor;
+		vec3 norm = normalize(normal);
+		vec3 dirToLight = normalize(light.pos - fPos); 
+		float diff = max(dot(norm, dirToLight), 0.0);
+		diffuse = material.diffuse * diff * light.diffuse;
+
+		vec3 dirToCamera = normalize(cameraPos - fPos);
+		vec3 reflectDir = reflect(-dirToLight, norm); 
+		float spec = pow(max(dot(dirToCamera, reflectDir), 0.0), material.shiness);
+		specular = material.specular * spec * light.specular;
+	}
+
+	if (PointLight > 0)
+	{
+		float distance    = length(light.pos - fPos);
+		float attenuation = 1.0 / (light.constant + light.linear * distance + 
+    		    light.quadratic * (distance * distance));
+
+		ambient  *= attenuation; 
+		diffuse  *= attenuation;
+		specular *= attenuation;   
+	}
+	
+	result *= vec4(ambient + diffuse + specular, 1.0f);
 }

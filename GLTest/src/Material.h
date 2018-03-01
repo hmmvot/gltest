@@ -43,19 +43,16 @@ class Material
 public:
 //	static const size_t MAX_TEXTURE_COUNT = 4;
 
-	glm::vec4 color{1, 1, 1, 1};
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	float shiness;
 
 	Material(std::shared_ptr<ShaderProgram> shaderProgram)
 		: m_ShaderProgram(std::move(shaderProgram))
 	{
-		int i = 0;
-//		for (auto it = std::begin(textures); it != std::end(textures); ++it, ++i)
-//		{
-//			it->texture = nullptr;
-//			it->SetShift({0, 0});
-//			it->intensity = i > 0 ? 0.f : 1.f;
-//			it->scale = {1, 1};
-//		}
+		SetColor({1, 1, 1});
+		shiness = 32;
 	}
 	~Material()
 	{}
@@ -79,6 +76,13 @@ public:
 	std::shared_ptr<ShaderProgram> GetShader() const
 	{
 		return m_ShaderProgram;
+	}
+
+	void SetColor(const glm::vec3& color)
+	{
+		ambient = color;
+		diffuse = color;
+		specular = color;
 	}
 
 private:

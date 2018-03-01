@@ -12,6 +12,12 @@ public:
 		return m_Matrix;
 	}
 
+	glm::mat3 GetNormalMatrix() const
+	{
+		UpdateNormalMatrix();
+		return m_NormalMatrix;
+	}
+
 	glm::vec3 GetPosition() const
 	{
 		return m_Position;
@@ -21,6 +27,7 @@ public:
 	{
 		m_Position = position;
 		m_TransformDirty = true;
+		m_NormalMatrixDirty = true;
 	}
 
 	glm::vec3 GetRotation() const
@@ -32,6 +39,7 @@ public:
 	{
 		m_Rotation = rotation;
 		m_TransformDirty = true;
+		m_NormalMatrixDirty = true;
 	}
 
 	glm::vec3 GetScale() const
@@ -43,36 +51,51 @@ public:
 	{
 		m_Scale = scale;
 		m_TransformDirty = true;
+		m_NormalMatrixDirty = true;
 	}
 
 private:
 	mutable glm::mat4 m_Matrix{1.0f};
+	mutable glm::mat4 m_NormalMatrix{1.0f};
 
 	glm::vec3 m_Position{0, 0, 0};
 	glm::vec3 m_Rotation{0, 0, 0};
 	glm::vec3 m_Scale{0, 0, 0};
 
 	mutable bool m_TransformDirty{false};
+	mutable bool m_NormalMatrixDirty{false};
 	
 	void UpdateTransform() const
 	{
-	if (!m_TransformDirty)
-	{
-		return;
+		if (!m_TransformDirty)
+		{
+			return;
+		}
+
+		glm::mat4 t{1.0f};
+
+		t = glm::translate(t, m_Position);
+
+		t = glm::rotate(t, glm::radians(m_Rotation.x), glm::vec3(1, 0, 0));
+		t = glm::rotate(t, glm::radians(m_Rotation.y), glm::vec3(0, 1, 0));
+		t = glm::rotate(t, glm::radians(m_Rotation.z), glm::vec3(0, 0, 1));
+
+		t = glm::scale(t, m_Scale);
+
+		m_Matrix = t;
+
+		m_TransformDirty = false;
 	}
 
-	glm::mat4 t{1.0f};
+	void UpdateNormalMatrix() const
+	{
+		if (!m_NormalMatrixDirty)
+		{
+			return;
+		}
 
-	t = glm::translate(t, m_Position);
+		m_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(GetMatrix())));
 
-	t = glm::rotate(t, glm::radians(m_Rotation.x), glm::vec3(1, 0, 0));
-	t = glm::rotate(t, glm::radians(m_Rotation.y), glm::vec3(0, 1, 0));
-	t = glm::rotate(t, glm::radians(m_Rotation.z), glm::vec3(0, 0, 1));
-
-	t = glm::scale(t, m_Scale);
-
-	m_Matrix = t;
-
-	m_TransformDirty = false;
+		m_NormalMatrixDirty = false;
 	}
 };

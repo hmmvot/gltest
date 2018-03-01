@@ -11,6 +11,7 @@ layout(location = 6) in vec3 _normal;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat3 normalMatrix;
 
 out vec4 vColor;
 out vec2 uv0;

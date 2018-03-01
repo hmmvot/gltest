@@ -28,6 +28,7 @@ public:
 	void SetVec3(const std::string& name, const glm::vec3& vec) const;
 	void SetVec2(const std::string& name, const glm::vec2& vec) const;
 	void SetMat4(const std::string& name, const glm::mat4& mat) const;
+	void SetMat3(const std::string& name, const glm::mat3& mat) const;
 
 private:
 	GLuint m_Id;

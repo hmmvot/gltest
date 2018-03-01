@@ -104,12 +104,35 @@ int main()
 	auto sun = Object::Create();
 	sun->material = lightSourceMaterial;
 	sun->mesh = Mesh::CreateCube();
-	sun->directionalLight = std::make_shared<DirectionalLight>();
-	sun->directionalLight->color = {1.0f, 0.5f, 0};
+	sun->light = std::make_shared<Light>(Light::Type::Directional);
+	//sun->light->SetColor({1.0f, 0.5f, 0});
+	sun->light->SetColor({1, 1, 1});
 	sun->transform.SetPosition({0, 2, 1});
 	sun->transform.SetScale({0.1f, 0.1f, 0.1f});
 
-	std::vector<ObjectRef> objects = {plane, cube, sun};
+	auto lamp1 = Object::Create();
+	lamp1->material = lightSourceMaterial;
+	lamp1->mesh = Mesh::CreateCube();
+	lamp1->light = std::make_shared<Light>(Light::Type::Point);
+	lamp1->light->SetColor({1.0f, 0, 0});
+	lamp1->light->constant = 1.0f;
+	lamp1->light->linear = 0.09f;
+	lamp1->light->quadratic = 0.032f;
+	lamp1->transform.SetPosition({0.5, 1, 1});
+	lamp1->transform.SetScale({0.1f, 0.1f, 0.1f});
+
+	auto lamp2 = Object::Create();
+	lamp2->material = lightSourceMaterial;
+	lamp2->mesh = Mesh::CreateCube();
+	lamp2->light = std::make_shared<Light>(Light::Type::Point);
+	lamp2->light->SetColor({1.0f, 0, 0});
+	lamp2->light->constant = 1.0f;
+	lamp2->light->linear = 0.09f;
+	lamp2->light->quadratic = 0.032f;
+	lamp2->transform.SetPosition({-0.5, 1, 1});
+	lamp2->transform.SetScale({0.1f, 0.1f, 0.1f});
+
+	std::vector<ObjectRef> objects = {plane, cube, sun, lamp1, lamp2};
 
 	MyCamera.SetProjection(45.0f, ScreenWidth / ScreenHeight, 0.1f, 100.0f);
 	MyCamera.SetPosition({0, 1.5f, 3});

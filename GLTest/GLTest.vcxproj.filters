@@ -60,10 +60,10 @@
     <ClInclude Include="src\Renderer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\DirectionalLight.h">
+    <ClInclude Include="src\Transform.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Transform.h">
+    <ClInclude Include="src\Light.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
