@@ -43,7 +43,17 @@ void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &object
 		shader->SetMat4("projection", projection);
 		shader->SetMat4("view", view);
 		shader->SetMat4("model", obj->transform.GetMatrix());
-		shader->SetVec4("color", material->color);
+
+		shader->SetVec3("cameraPos", camera.GetPosition());
+
+		if (obj == dirLightObject)
+		{
+			shader->SetVec4("color", glm::vec4{ dirLightObject->directionalLight->color, 1.0f });
+		}
+		else 
+		{
+			shader->SetVec4("color", material->color);
+		}
 
 		shader->SetFloat("textures[0].intensity", material->mainTex.intensity);
 		shader->SetVec2("textures[0].scale", material->mainTex.scale);

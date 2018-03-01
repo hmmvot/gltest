@@ -22,6 +22,7 @@ const float ScreenWidth = 800;
 const float ScreenHeight = 600;
 
 Camera MyCamera;
+ObjectRef Cube;
 
 int main()
 {
@@ -88,22 +89,24 @@ int main()
 	cube->material = material0;
 	cube->mesh = Mesh::CreateCube();
 	cube->transform.SetPosition({0, 1, 0});
-	cube->transform.SetRotation({0, 0, 0});
+	cube->transform.SetRotation({30, 0, 0});
 	cube->transform.SetScale({0.5f, 0.5f, 0.5f});
+
+	Cube = cube;
 
 	auto plane = Object::Create();
 	plane->material = material1;
 	plane->mesh = Mesh::CreatePlane();
 	plane->transform.SetPosition({0, 0, 0});
 	plane->transform.SetScale({20, 20, 1});
-	plane->transform.SetRotation({90, 0, 0});
+	plane->transform.SetRotation({-90, 0, 0});
 
 	auto sun = Object::Create();
 	sun->material = lightSourceMaterial;
 	sun->mesh = Mesh::CreateCube();
 	sun->directionalLight = std::make_shared<DirectionalLight>();
 	sun->directionalLight->color = {1.0f, 0.5f, 0};
-	sun->transform.SetPosition({0, 2, -1});
+	sun->transform.SetPosition({0, 2, 1});
 	sun->transform.SetScale({0.1f, 0.1f, 0.1f});
 
 	std::vector<ObjectRef> objects = {plane, cube, sun};
@@ -122,9 +125,9 @@ int main()
 		prev = now;
 
 		{
-			auto r = cube->transform.GetRotation();
-			r.y += 30 * dt;
-			cube->transform.SetRotation(r);
+			//auto r = cube->transform.GetRotation();
+			//r.y += 30 * dt;
+			//cube->transform.SetRotation(r);
 
 			auto shift = material1->tex1.GetShift();
 			shift.x += 0.25f * dt;
@@ -191,8 +194,10 @@ void MouseMoveCallback(GLFWwindow *window, double xpos, double ypos)
 
 	if (MouseRighButtonPressed)
 	{
-		MyCamera.Pitch(dy / 10);
-		MyCamera.Yaw(dx / 10);
+		auto r = Cube->transform.GetRotation();
+		r.x += dy / 10;
+		r.y += dx / 10;
+		Cube->transform.SetRotation(r);
 	}
 	else if (MouseMiddleButtonPressed)
 	{

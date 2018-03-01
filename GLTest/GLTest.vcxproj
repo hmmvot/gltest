@@ -96,8 +96,8 @@
     <LibraryPath>C:\Users\User\Documents\Workspace\GLTest\ext\glfw-3.2.1.bin.WIN64\lib-vc2015;C:\Users\User\Documents\Workspace\GLTest\ext\glew-2.1.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\User\Documents\Workspace\GLTest\GLTest\ext\glfw-3.2.1.bin.WIN64\include;C:\Users\User\Documents\Workspace\GLTest\GLTest\ext\glew-2.1.0\include;C:\Users\User\Documents\Workspace\GLTest\GLTest\ext\glm-0.9.9-a2;C:\Users\User\Documents\Workspace\GLTest\GLTest\ext\stb_image;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\User\Documents\Workspace\GLTest\GLTest\ext\glew-2.1.0\lib\Release\x64;C:\Users\User\Documents\Workspace\GLTest\GLTest\ext\glfw-3.2.1.bin.WIN64\lib-vc2015;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)GLTest\ext\glfw-3.2.1.bin.WIN64\include;$(SolutionDir)GLTest\ext\glew-2.1.0\include;$(SolutionDir)GLTest\ext\glm-0.9.9-a2;$(SolutionDir)GLTest\ext\stb_image;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)GLTest\ext\glew-2.1.0\lib\Release\x64;$(SolutionDir)GLTest\ext\glfw-3.2.1.bin.WIN64\lib-vc2015;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

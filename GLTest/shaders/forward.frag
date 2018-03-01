@@ -30,6 +30,9 @@ out vec4 result;
 uniform vec4 color;
 uniform TextureSettings textures[MAX_TEX_COUNT];
 uniform DirLight dirLight;
+uniform vec3 cameraPos;
+
+float specularStrength = 0.5;
 
 vec4 TexColor(int i, vec2 uv)
 {
@@ -44,10 +47,16 @@ void main()
 	vec4 t3 = TexColor(3, uv3);
 	
 	vec3 ambient = dirLight.ambient * dirLight.color;
+
 	vec3 norm = normalize(normal);
 	vec3 lightDir = normalize(dirLight.pos - fPos); 
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = diff * dirLight.color;
+
+	vec3 viewDir = normalize(cameraPos - fPos);
+	vec3 reflectDir = reflect(-lightDir, norm); 
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	vec3 specular = specularStrength * spec * dirLight.color;  
 
 	result = (t0 + t1 + t2 + t3) * vec4(ambient + diffuse, 1.0f) * color * vColor;
 }

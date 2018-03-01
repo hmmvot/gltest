@@ -12,6 +12,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+out vec4 vColor;
 out vec2 uv0;
 out vec2 uv1;
 out vec2 uv2;
@@ -22,10 +23,11 @@ out vec3 fPos;
 void main()
 {
 	gl_Position = projection * view * model * vec4(pos, 1.0);
+	vColor = _color;
 	uv0 = _uv0;
 	uv1 = _uv1;
 	uv2 = _uv2;
 	uv3 = _uv3;
-	normal = _normal;
+	normal = mat3(transpose(inverse(model))) * _normal;
     fPos = vec3(model * vec4(pos, 1.0));
 }
