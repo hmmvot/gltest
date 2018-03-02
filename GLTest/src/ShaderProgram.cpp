@@ -87,8 +87,6 @@ ShaderProgram::~ShaderProgram()
 void ShaderProgram::Use() const
 {
 	glUseProgram(m_Id);
-	SetInt("tex0", 0);
-	SetInt("tex1", 1);
 }
 
 void ShaderProgram::SetBool(const std::string &name, bool value) const

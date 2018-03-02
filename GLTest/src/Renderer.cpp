@@ -11,6 +11,7 @@ void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &object
 	const auto view = camera.GetViewMatrix();
 
 	std::list<ObjectRef> lights;
+	int pointLightsCount = 0;
 	for (const auto &obj : objects)
 	{
 		if (obj->light)
@@ -26,6 +27,7 @@ void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &object
 			}
 			else if (obj->light->type == Light::Type::Point)
 			{
+				++pointLightsCount;
 				lights.push_back(obj);
 			}
 		}
@@ -45,17 +47,24 @@ void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &object
 
 		shader->Use();
 
+		shader->SetInt("actualPointLights", pointLightsCount);
+		
+		int pointLightIndex = 0;
+		for (auto light : lights)
+		{
+			light->light->Setup(shader, pointLightIndex, light->transform.GetPosition());
+			if (light->light->type == Light::Type::Point)
+			{
+				++pointLightIndex;
+			}
+		}
+
+		shader->SetVec3("cameraPos", camera.GetPosition());
+
 		shader->SetMat4("projection", projection);
 		shader->SetMat4("view", view);
 		shader->SetMat4("model", obj->transform.GetMatrix());
 		shader->SetMat3("normalMatrix", obj->transform.GetNormalMatrix());
-
-		shader->SetVec3("cameraPos", camera.GetPosition());
-
-		shader->SetVec3("material.ambient", material->ambient);
-		shader->SetVec3("material.diffuse", material->diffuse);
-		shader->SetVec3("material.specular", material->specular);
-		shader->SetFloat("material.shiness", material->shiness);
 		
 		if (obj->light)
 		{
@@ -63,6 +72,11 @@ void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &object
 		}
 		else
 		{
+			shader->SetVec3("material.ambient", material->ambient);
+			shader->SetVec3("material.diffuse", material->diffuse);
+			shader->SetVec3("material.specular", material->specular);
+			shader->SetFloat("material.shiness", material->shiness);
+
 			shader->SetFloat("textures[0].intensity", material->mainTex.intensity);
 			shader->SetVec2("textures[0].scale", material->mainTex.scale);
 			shader->SetVec2("textures[0].shift", material->mainTex.GetShift());
@@ -99,32 +113,7 @@ void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &object
 			glBindTexture(GL_TEXTURE_2D, id);
 			shader->SetInt("textures[3].id", 3);
 		}
-		
-		if (obj->light || lights.size() == 0)
-		{
-			mesh->Draw();
-		}
-		else
-		{
-			for (auto light : lights)
-			{
-				shader->SetFloat("light.ambientStrength", light->light->ambientStrength);
-				shader->SetVec3("light.ambient", light->light->ambient);
-				shader->SetVec3("light.diffuse", light->light->diffuse);
-				shader->SetVec3("light.specular", light->light->specular);
-				shader->SetVec3("light.pos", light->transform.GetPosition());
-				shader->SetFloat("light.constant", light->light->constant);
-				shader->SetFloat("light.linear", light->light->linear);
-				shader->SetFloat("light.quadratic", light->light->quadratic);
 
-				bool directionalLight = light->light->type == Light::Type::Directional;
-				bool pointLight = light->light->type == Light::Type::Point;
-				
-				shader->SetInt("DirectionalLight", directionalLight);
-				shader->SetInt("PointLight", pointLight);
-
-				mesh->Draw();
-			}
-		}
+		mesh->Draw();
 	}
 }

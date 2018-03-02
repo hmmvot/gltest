@@ -77,11 +77,12 @@ int main()
 
 	auto material1 = std::make_shared<Material>(standardShader);
 	material1->mainTex.texture = texture0;
-	material1->tex1.texture = texture2;
+	//material1->tex1.texture = texture2;
 	material1->mainTex.intensity = 0.5f;
 	material1->tex1.intensity = 0.5f;
 	material1->mainTex.scale = {0.1f, 0.1f};
 	material1->tex1.scale = {0.1f, 0.1f};
+	material1->shiness = 64;
 
 	auto lightSourceMaterial = std::make_shared<Material>(lightSourceShader);
 
@@ -116,8 +117,8 @@ int main()
 	lamp1->light = std::make_shared<Light>(Light::Type::Point);
 	lamp1->light->SetColor({1.0f, 0, 0});
 	lamp1->light->constant = 1.0f;
-	lamp1->light->linear = 0.09f;
-	lamp1->light->quadratic = 0.032f;
+	lamp1->light->linear = 0.5f;
+	lamp1->light->quadratic = 0.09f;
 	lamp1->transform.SetPosition({0.5, 1, 1});
 	lamp1->transform.SetScale({0.1f, 0.1f, 0.1f});
 
@@ -132,7 +133,7 @@ int main()
 	lamp2->transform.SetPosition({-0.5, 1, 1});
 	lamp2->transform.SetScale({0.1f, 0.1f, 0.1f});
 
-	std::vector<ObjectRef> objects = {plane, cube, sun, lamp1, lamp2};
+	std::vector<ObjectRef> objects = {plane, cube, sun, lamp1};//, lamp2};
 
 	MyCamera.SetProjection(45.0f, ScreenWidth / ScreenHeight, 0.1f, 100.0f);
 	MyCamera.SetPosition({0, 1.5f, 3});
