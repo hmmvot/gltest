@@ -84,24 +84,25 @@ vec3 CalculateDirectionalLight(DirectionalLight light)
 
 vec3 CalculatePointLight(PointLight light)
 {
+	vec3 norm = normalize(normal);
     vec3 lightDir = normalize(light.pos - fPos);
     // diffuse shading
-    float diff = max(dot(normalize(normal), lightDir), 0.0);
+    float diff = max(dot(norm, lightDir), 0.0);
     // specular shading
 	vec3 dirToCamera = normalize(cameraPos - fPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(dirToCamera, reflectDir), 0.0), material.shiness);
     // attenuation
     float distance    = length(light.pos - fPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     // combine results
-    vec3 ambient  = light.ambient  * material.ambient;
+    vec3 ambient  = light.ambient  * light.ambientStrength * material.ambient;
     vec3 diffuse  = light.diffuse  * diff * material.diffuse;
     vec3 specular = light.specular * spec * material.specular;
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
-    return ambient;//(ambient + diffuse + specular);
+    return diffuse + specular;//(ambient + diffuse + specular);
 }
 
 void main()

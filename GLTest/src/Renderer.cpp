@@ -52,7 +52,7 @@ void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &object
 		int pointLightIndex = 0;
 		for (auto light : lights)
 		{
-			light->light->Setup(shader, pointLightIndex, light->transform.GetPosition());
+			light->light->Setup(shader, pointLightIndex, light->transform);
 			if (light->light->type == Light::Type::Point)
 			{
 				++pointLightIndex;

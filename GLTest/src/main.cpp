@@ -69,11 +69,12 @@ int main()
 	const auto lightSourceShader = std::make_shared<ShaderProgram>("shaders/forward.vert", "shaders/lightSource.frag");
 
 	const auto texture0 = std::make_shared<Texture2D>("res/wall.jpg");
-	const auto texture1 = std::make_shared<Texture2D>("res/wall1.jpg");
+	const auto texture1 = std::make_shared<Texture2D>("res/box.png");
 	const auto texture2 = std::make_shared<Texture2D>("res/lava.jpg");
 
 	auto material0 = std::make_shared<Material>(standardShader);
 	material0->mainTex.texture = texture1;
+	material0->shiness = 1;
 
 	auto material1 = std::make_shared<Material>(standardShader);
 	material1->mainTex.texture = texture0;
@@ -110,15 +111,16 @@ int main()
 	sun->light->SetColor({1, 1, 1});
 	sun->transform.SetPosition({0, 2, 1});
 	sun->transform.SetScale({0.1f, 0.1f, 0.1f});
+	sun->transform.SetRotation({-90, 0, 0});
 
 	auto lamp1 = Object::Create();
 	lamp1->material = lightSourceMaterial;
 	lamp1->mesh = Mesh::CreateCube();
 	lamp1->light = std::make_shared<Light>(Light::Type::Point);
-	lamp1->light->SetColor({1.0f, 0, 0});
+	//lamp1->light->SetColor({1.0f, 0, 0});
 	lamp1->light->constant = 1.0f;
-	lamp1->light->linear = 0.5f;
-	lamp1->light->quadratic = 0.09f;
+	lamp1->light->linear = 0.35f;
+	lamp1->light->quadratic = 0.44f;
 	lamp1->transform.SetPosition({0.5, 1, 1});
 	lamp1->transform.SetScale({0.1f, 0.1f, 0.1f});
 
@@ -128,12 +130,12 @@ int main()
 	lamp2->light = std::make_shared<Light>(Light::Type::Point);
 	lamp2->light->SetColor({1.0f, 0, 0});
 	lamp2->light->constant = 1.0f;
-	lamp2->light->linear = 0.09f;
-	lamp2->light->quadratic = 0.032f;
+	lamp2->light->linear = 0.35f;
+	lamp2->light->quadratic = 0.44f;
 	lamp2->transform.SetPosition({-0.5, 1, 1});
 	lamp2->transform.SetScale({0.1f, 0.1f, 0.1f});
 
-	std::vector<ObjectRef> objects = {plane, cube, sun, lamp1};//, lamp2};
+	std::vector<ObjectRef> objects = {plane, cube, sun, lamp1, lamp2};
 
 	MyCamera.SetProjection(45.0f, ScreenWidth / ScreenHeight, 0.1f, 100.0f);
 	MyCamera.SetPosition({0, 1.5f, 3});
