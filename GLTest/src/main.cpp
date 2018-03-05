@@ -18,8 +18,8 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode
 void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 void MouseMoveCallback(GLFWwindow *window, double xpos, double ypos);
 
-const float ScreenWidth = 800;
-const float ScreenHeight = 600;
+const float ScreenWidth = 1280;
+const float ScreenHeight = 720;
 
 Camera MyCamera;
 ObjectRef Cube;
