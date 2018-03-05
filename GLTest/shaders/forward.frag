@@ -8,19 +8,12 @@ struct TextureSettings
 	float intensity;
 };
 
-struct DirectionalLight
+struct Light
 {
-	vec3 dir;
+	int type; // 0 - directional, 1 - point, 2 - flashlight
 
-	float ambientStrength;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};
-
-struct PointLight
-{
 	vec3 pos;
+	vec3 dir;
 
 	float ambientStrength;
     vec3 ambient;
@@ -30,6 +23,11 @@ struct PointLight
 	float constant;
     float linear;
     float quadratic;
+
+	float cutoffIn;
+	float cutoffOut;
+
+	float intensity;
 };
 
 struct Material {
@@ -40,7 +38,7 @@ struct Material {
 };
 
 const int MAX_TEX_COUNT = 4;
-const int MAX_POINT_LIGHTS = 32;
+const int MAX_LIGHTS = 32;
 
 in vec4 vColor;
 in vec2 uv0;
@@ -56,53 +54,53 @@ uniform TextureSettings textures[MAX_TEX_COUNT];
 uniform Material material;
 uniform vec3 cameraPos;		
 
-uniform DirectionalLight dirLight;
-uniform PointLight pointLights[MAX_POINT_LIGHTS];
-uniform int actualPointLights;
+uniform Light lights[MAX_LIGHTS];
+uniform int actualLightsCount;
 
 vec4 TexColor(int i, vec2 uv)
 {
 	return texture(textures[i].id, uv / textures[i].scale + textures[i].shift) * textures[i].intensity;
 }
 
-vec3 CalculateDirectionalLight(DirectionalLight light)
-{
-	vec3 ambient = material.ambient * light.ambientStrength * light.ambient;
-
-	vec3 norm = normalize(normal);
-	vec3 dirToLight = normalize(-light.dir); 
-	float diff = max(dot(norm, dirToLight), 0.0);
-	vec3 diffuse = material.diffuse * diff * light.diffuse;
-
-	vec3 dirToCamera = normalize(cameraPos - fPos);
-	vec3 reflectDir = reflect(-dirToLight, norm); 
-	float spec = pow(max(dot(dirToCamera, reflectDir), 0.0), material.shiness);
-	vec3 specular = material.specular * spec * light.specular;
-
-	return ambient + diffuse + specular;
-}
-
-vec3 CalculatePointLight(PointLight light)
+vec3 CalculateLight(Light light)
 {
 	vec3 norm = normalize(normal);
-    vec3 lightDir = normalize(light.pos - fPos);
+    vec3 dirToLight = light.type == 0 ? -normalize(light.dir) : normalize(light.pos - fPos);
+
     // diffuse shading
-    float diff = max(dot(norm, lightDir), 0.0);
+    float diff = max(dot(norm, dirToLight), 0.0);
+
     // specular shading
 	vec3 dirToCamera = normalize(cameraPos - fPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
+    vec3 reflectDir = reflect(-dirToLight, norm);
     float spec = pow(max(dot(dirToCamera, reflectDir), 0.0), material.shiness);
-    // attenuation
-    float distance    = length(light.pos - fPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
-    // combine results
+
     vec3 ambient  = light.ambient  * light.ambientStrength * material.ambient;
     vec3 diffuse  = light.diffuse  * diff * material.diffuse;
     vec3 specular = light.specular * spec * material.specular;
-    ambient  *= attenuation;
-    diffuse  *= attenuation;
-    specular *= attenuation;
-    return diffuse + specular;//(ambient + diffuse + specular);
+	
+    // attenuation
+	if (light.type == 1)
+	{
+		float distance    = length(light.pos - fPos);
+		float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance)); 
+		ambient  *= attenuation;
+		diffuse  *= attenuation;
+		specular *= attenuation;
+	}
+
+	float intensity = light.intensity;
+
+	// cutoff
+	if (light.type == 2)
+	{
+		float theta = dot(dirToLight, normalize(-light.dir));
+		float epsilon = cos(light.cutoffIn) - cos(light.cutoffOut);
+		intensity = intensity * clamp((theta - cos(light.cutoffOut)) / epsilon, 0.0, 1.0);
+
+	}
+
+    return (ambient + diffuse + specular) * intensity;
 }
 
 void main()
@@ -114,10 +112,10 @@ void main()
 	
 	result = (t0 + t1 + t2 + t3) * vColor;
 
-	vec3 lightColor = CalculateDirectionalLight(dirLight);
-	for (int i = 0; i < min(MAX_POINT_LIGHTS, actualPointLights); ++i)
+	vec3 lightColor = vec3(0, 0, 0);
+	for (int i = 0; i < min(MAX_LIGHTS, actualLightsCount); ++i)
 	{
-		lightColor += CalculatePointLight(pointLights[i]);
+		lightColor += CalculateLight(lights[i]);
 	}
 	
 	result *= vec4(lightColor, 1.0);

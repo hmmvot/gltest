@@ -109,6 +109,7 @@ int main()
 	sun->light = std::make_shared<Light>(Light::Type::Directional);
 	//sun->light->SetColor({1.0f, 0.5f, 0});
 	sun->light->SetColor({1, 1, 1});
+	sun->light->intensity = 0.3f;
 	sun->transform.SetPosition({0, 2, 1});
 	sun->transform.SetScale({0.1f, 0.1f, 0.1f});
 	sun->transform.SetRotation({-90, 0, 0});
@@ -127,13 +128,16 @@ int main()
 	auto lamp2 = Object::Create();
 	lamp2->material = lightSourceMaterial;
 	lamp2->mesh = Mesh::CreateCube();
-	lamp2->light = std::make_shared<Light>(Light::Type::Point);
+	lamp2->light = std::make_shared<Light>(Light::Type::Flashlight);
 	lamp2->light->SetColor({1.0f, 0, 0});
 	lamp2->light->constant = 1.0f;
 	lamp2->light->linear = 0.35f;
 	lamp2->light->quadratic = 0.44f;
+	lamp2->light->cutoff = 30.0f;
+	lamp2->light->cutoffDelta = 5.0f;
 	lamp2->transform.SetPosition({-0.5, 1, 1});
 	lamp2->transform.SetScale({0.1f, 0.1f, 0.1f});
+	lamp2->transform.SetRotation({0, 0, 0});
 
 	std::vector<ObjectRef> objects = {plane, cube, sun, lamp1, lamp2};
 

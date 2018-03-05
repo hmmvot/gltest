@@ -11,7 +11,6 @@ void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &object
 	const auto view = camera.GetViewMatrix();
 
 	std::list<ObjectRef> lights;
-	int pointLightsCount = 0;
 	for (const auto &obj : objects)
 	{
 		if (obj->light)
@@ -25,9 +24,8 @@ void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &object
 				}
 				lights.push_front(obj);
 			}
-			else if (obj->light->type == Light::Type::Point)
+			else
 			{
-				++pointLightsCount;
 				lights.push_back(obj);
 			}
 		}
@@ -47,16 +45,12 @@ void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &object
 
 		shader->Use();
 
-		shader->SetInt("actualPointLights", pointLightsCount);
+		shader->SetInt("actualLightsCount", lights.size());
 		
-		int pointLightIndex = 0;
+		int i = 0;
 		for (auto light : lights)
 		{
-			light->light->Setup(shader, pointLightIndex, light->transform);
-			if (light->light->type == Light::Type::Point)
-			{
-				++pointLightIndex;
-			}
+			light->light->Setup(shader, i++, light->transform);
 		}
 
 		shader->SetVec3("cameraPos", camera.GetPosition());
