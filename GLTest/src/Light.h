@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <glm/detail/type_vec3.hpp>
+#include <glm/glm.hpp>
 
 class Light
 {
@@ -37,18 +38,18 @@ public:
 		specular = color;
 	}
 
-	void Setup(const std::shared_ptr<ShaderProgram>& shader, int index, const Transform& t)
+	void Setup(const std::shared_ptr<ShaderProgram>& shader, int index, const glm::mat4& matrix, const glm::vec3& pos)
 	{
 		std::string prefix = "lights[" + std::to_string(index) + "].";
 
 		if (type == Type::Directional || type == Type::Flashlight)
 		{
-			shader->SetVec3(prefix + "dir", glm::mat3{t.GetMatrix()} * glm::vec3{0, 0, -1});
+			shader->SetVec3(prefix + "dir", glm::mat3{matrix} * glm::vec3{0, 0, -1});
 		}
 
 		if (type == Type::Point || type == Type::Flashlight)
 		{
-			shader->SetVec3(prefix + "pos", t.GetPosition());
+			shader->SetVec3(prefix + "pos", pos);
 			shader->SetFloat(prefix + "constant", constant);
 			shader->SetFloat(prefix + "linear", linear);
 			shader->SetFloat(prefix + "quadratic", quadratic);

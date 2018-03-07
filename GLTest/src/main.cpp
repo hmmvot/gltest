@@ -87,34 +87,41 @@ int main()
 
 	auto lightSourceMaterial = std::make_shared<Material>(lightSourceShader);
 
-	auto cube = Object::Create();
+	auto cube = Object::Create("cube");
 	cube->material = material0;
 	cube->mesh = Mesh::CreateCube();
-	cube->transform.SetPosition({0, 1, 0});
-	cube->transform.SetRotation({30, 0, 0});
-	cube->transform.SetScale({0.5f, 0.5f, 0.5f});
+	cube->SetPosition({0, 1, 0});
+	cube->SetRotation({30, 0, 0});
+	cube->SetScale({0.5f, 0.5f, 0.5f});
+
+	auto cube2 = Object::Create("cube2");
+	cube2->material = material0;
+	cube2->mesh = Mesh::CreateCube();
+	cube2->parent = cube;
+	cube2->SetPosition({1, 0, 0});
+	cube2->SetScale({0.4f, 0.4f, 0.4f});
 
 	Cube = cube;
 
-	auto plane = Object::Create();
+	auto plane = Object::Create("plane");
 	plane->material = material1;
 	plane->mesh = Mesh::CreatePlane();
-	plane->transform.SetPosition({0, 0, 0});
-	plane->transform.SetScale({20, 20, 1});
-	plane->transform.SetRotation({-90, 0, 0});
+	plane->SetPosition({0, 0, 0});
+	plane->SetScale({20, 20, 1});
+	plane->SetRotation({-90, 0, 0});
 
-	auto sun = Object::Create();
+	auto sun = Object::Create("sun");
 	sun->material = lightSourceMaterial;
 	sun->mesh = Mesh::CreateCube();
 	sun->light = std::make_shared<Light>(Light::Type::Directional);
 	//sun->light->SetColor({1.0f, 0.5f, 0});
 	sun->light->SetColor({1, 1, 1});
 	sun->light->intensity = 0.3f;
-	sun->transform.SetPosition({0, 2, 1});
-	sun->transform.SetScale({0.1f, 0.1f, 0.1f});
-	sun->transform.SetRotation({-90, 0, 0});
+	sun->SetPosition({0, 2, 1});
+	sun->SetScale({0.1f, 0.1f, 0.1f});
+	sun->SetRotation({-90, 0, 0});
 
-	auto lamp1 = Object::Create();
+	auto lamp1 = Object::Create("lamp1");
 	lamp1->material = lightSourceMaterial;
 	lamp1->mesh = Mesh::CreateCube();
 	lamp1->light = std::make_shared<Light>(Light::Type::Point);
@@ -122,10 +129,10 @@ int main()
 	lamp1->light->constant = 1.0f;
 	lamp1->light->linear = 0.35f;
 	lamp1->light->quadratic = 0.44f;
-	lamp1->transform.SetPosition({0.5, 1, 1});
-	lamp1->transform.SetScale({0.1f, 0.1f, 0.1f});
+	lamp1->SetPosition({0.5, 1, 1});
+	lamp1->SetScale({0.1f, 0.1f, 0.1f});
 
-	auto lamp2 = Object::Create();
+	auto lamp2 = Object::Create("lamp2");
 	lamp2->material = lightSourceMaterial;
 	lamp2->mesh = Mesh::CreateCube();
 	lamp2->light = std::make_shared<Light>(Light::Type::Flashlight);
@@ -135,11 +142,11 @@ int main()
 	lamp2->light->quadratic = 0.44f;
 	lamp2->light->cutoff = 30.0f;
 	lamp2->light->cutoffDelta = 5.0f;
-	lamp2->transform.SetPosition({-0.5, 1, 1});
-	lamp2->transform.SetScale({0.1f, 0.1f, 0.1f});
-	lamp2->transform.SetRotation({0, 0, 0});
+	lamp2->SetPosition({-0.5, 1, 1});
+	lamp2->SetScale({0.1f, 0.1f, 0.1f});
+	lamp2->SetRotation({0, 0, 0});
 
-	std::vector<ObjectRef> objects = {plane, cube, sun, lamp1, lamp2};
+	std::vector<ObjectRef> objects = {plane, cube, cube2, sun, lamp1, lamp2};
 
 	MyCamera.SetProjection(45.0f, ScreenWidth / ScreenHeight, 0.1f, 100.0f);
 	MyCamera.SetPosition({0, 1.5f, 3});
@@ -162,6 +169,11 @@ int main()
 			auto shift = material1->tex1.GetShift();
 			shift.x += 0.25f * dt;
 			material1->tex1.SetShift(shift);
+
+			auto pos = cube2->GetPosition();
+			pos.x = std::cos(now.time_since_epoch().count() / 1000000000.0f);
+			pos.z = std::sin(now.time_since_epoch().count() / 1000000000.0f);
+			cube2->SetPosition(pos);
 		}
 
 		glfwPollEvents();
@@ -224,10 +236,10 @@ void MouseMoveCallback(GLFWwindow *window, double xpos, double ypos)
 
 	if (MouseRighButtonPressed)
 	{
-		auto r = Cube->transform.GetRotation();
+		auto r = Cube->GetRotation();
 		r.x += dy / 10;
 		r.y += dx / 10;
-		Cube->transform.SetRotation(r);
+		Cube->SetRotation(r);
 	}
 	else if (MouseMiddleButtonPressed)
 	{

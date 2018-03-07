@@ -50,15 +50,15 @@ void Renderer::Render(const Camera &camera, const std::vector<ObjectRef> &object
 		int i = 0;
 		for (auto light : lights)
 		{
-			light->light->Setup(shader, i++, light->transform);
+			light->light->Setup(shader, i++, light->GetMatrix(), light->GetPosition());
 		}
 
 		shader->SetVec3("cameraPos", camera.GetPosition());
 
 		shader->SetMat4("projection", projection);
 		shader->SetMat4("view", view);
-		shader->SetMat4("model", obj->transform.GetMatrix());
-		shader->SetMat3("normalMatrix", obj->transform.GetNormalMatrix());
+		shader->SetMat4("model", obj->GetMatrix());
+		shader->SetMat3("normalMatrix", obj->GetNormalMatrix());
 		
 		if (obj->light)
 		{

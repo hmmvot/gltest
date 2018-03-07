@@ -39,7 +39,6 @@
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\ShaderProgram.h" />
     <ClInclude Include="src\Texture2D.h" />
-    <ClInclude Include="src\Transform.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{642CBFB6-B824-4871-973E-249AEE1CF00A}</ProjectGuid>
